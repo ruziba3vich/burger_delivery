@@ -15,9 +15,8 @@ cursor.execute(query)
 result = cursor.fetchone()
 if not result:
     create_database = f"CREATE DATABASE {original_database_name};"
-    tables = ["products", "User", "Cart"]
+    tables = ["Products", "Cart", "purchase_history", "User", "Products_for_cart"]
     cursor.execute(create_database)
-    
     
     products_table = f"""
                         CREATE TABLE {tables[0]}
@@ -28,23 +27,50 @@ if not result:
                             product_category VARCHAR(30),
                             PRIMARY KEY (id)
                         )"""
+    
     cart_table = f"""
-                    CREATE TABLE {tables[2]}
+                    CREATE TABLE {tables[1]}
                     (
                         id INTEGER,
+                        PRIMARY KEY (id),
                     )
             """
+    
+    purchase_history_table = f"""
+                                CREATE TABLE {tables[2]}
+                                (
+                                    id INTEGER,
+                                    cart_id INTEGER,
+                                    status INTEGER(1),
+                                    PRIMARY KEY (id),
+                                    FOREIGN KEY (cart_id) REFERENCES Cart(id)
+                                )
+                            """
+    
     users_table = f"""
-                    CREATE TABLE {tables[1]}
+                    CREATE TABLE {tables[3]}
                     (
                         id INTEGER auto_increment,
                         username VARCHAR (30),
-                        cart_number INTEGER,
-                        in_use TINYINT(1),
-                        PRIMARY KEY (id)
+                        cart_id INTEGER,
+                        purchase_history_table_id INTEGER,
+                        PRIMARY KEY (id),
+                        FOREIGN KEY (purchase_history_table_id) REFERENCES purchase_history(id),
+                        FOREIGN KEY (cart_id) REFERENCES Cart(id)
                     )
                 """
-    tables = []
+    
+    products_for_cart = f"""
+                            CREATE TABLE {tables[4]}
+                            (
+                                cart_id INTEGER,
+                                product_id INTEGER,
+                                FOREIGN KEY (cart_id) REFERENCES Cart(id) ON DELETE CASCADE,
+                                FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE
+                            )
+                        """
+    
+    tables = [products_table, cart_table, purchase_history_table, users_table, products_for_cart]
     use_query = f"USE {original_database_name};"
     cursor.execute(use_query)
     for table in tables:
