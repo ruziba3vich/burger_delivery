@@ -1,5 +1,6 @@
 import mysql.connector
 from PyQt5.QtWidgets import QApplication
+from abc_b_first_window import FirstWindow
 
 temporary_connection = mysql.connector.connect(
     host = 'localhost',
@@ -26,14 +27,14 @@ if not result:
                             product_price INTEGER,
                             product_category VARCHAR(30),
                             PRIMARY KEY (id)
-                        )"""
+                        );"""
     
     cart_table = f"""
                     CREATE TABLE {tables[1]}
                     (
                         id INTEGER,
                         PRIMARY KEY (id),
-                    )
+                    );
             """
     
     purchase_history_table = f"""
@@ -44,7 +45,7 @@ if not result:
                                     status INTEGER(1),
                                     PRIMARY KEY (id),
                                     FOREIGN KEY (cart_id) REFERENCES Cart(id)
-                                )
+                                );
                             """
     
     users_table = f"""
@@ -57,7 +58,7 @@ if not result:
                         PRIMARY KEY (id),
                         FOREIGN KEY (purchase_history_table_id) REFERENCES purchase_history(id),
                         FOREIGN KEY (cart_id) REFERENCES Cart(id)
-                    )
+                    );
                 """
     
     products_for_cart = f"""
@@ -67,7 +68,7 @@ if not result:
                                 product_id INTEGER,
                                 FOREIGN KEY (cart_id) REFERENCES Cart(id) ON DELETE CASCADE,
                                 FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE
-                            )
+                            );
                         """
     
     tables = [products_table, cart_table, purchase_history_table, users_table, products_for_cart]
@@ -80,5 +81,9 @@ cursor.close()
 temporary_connection.close()
 
 app = QApplication([])
+
+__welcoming_window = FirstWindow()
+__welcoming_window.resize(1200, 600)
+__welcoming_window.show()
 
 app.exec()
